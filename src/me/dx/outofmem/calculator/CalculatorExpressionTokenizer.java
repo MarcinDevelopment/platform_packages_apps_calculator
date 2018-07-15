@@ -26,11 +26,11 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 
-public class CalculatorExpressionTokenizer {
+class CalculatorExpressionTokenizer {
 
     private final Map<String, String> mReplacementMap;
 
-    public CalculatorExpressionTokenizer(Context context) {
+    CalculatorExpressionTokenizer(Context context) {
         mReplacementMap = new HashMap<>();
 
         Locale locale = context.getResources().getConfiguration().locale;
@@ -63,14 +63,14 @@ public class CalculatorExpressionTokenizer {
         mReplacementMap.put("Infinity", context.getString(R.string.inf));
     }
 
-    public String getNormalizedExpression(String expr) {
+    String getNormalizedExpression(String expr) {
         for (Entry<String, String> replacementEntry : mReplacementMap.entrySet()) {
             expr = expr.replace(replacementEntry.getValue(), replacementEntry.getKey());
         }
         return expr;
     }
 
-    public String getLocalizedExpression(String expr) {
+    String getLocalizedExpression(String expr) {
         for (Entry<String, String> replacementEntry : mReplacementMap.entrySet()) {
             expr = expr.replace(replacementEntry.getKey(), replacementEntry.getValue());
         }

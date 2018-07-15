@@ -17,7 +17,6 @@
 package me.dx.outofmem.calculator;
 
 import android.animation.Animator;
-import android.animation.Animator.AnimatorListener;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.animation.ArgbEvaluator;
@@ -25,7 +24,6 @@ import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.animation.ValueAnimator.AnimatorUpdateListener;
 import android.app.Activity;
-import android.graphics.Rect;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.view.ViewPager;
@@ -36,8 +34,6 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnKeyListener;
 import android.view.View.OnLongClickListener;
-import android.view.ViewAnimationUtils;
-import android.view.ViewGroupOverlay;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.Button;
 import android.widget.TextView;
@@ -66,7 +62,6 @@ public class Calculator extends Activity
         }
     };
     private CalculatorExpressionEvaluator mEvaluator;
-    private View mDisplayView;
     private CalculatorEditText mFormulaEditText;
     private CalculatorEditText mResultEditText;
     private ViewPager mPadViewPager;
@@ -102,26 +97,18 @@ public class Calculator extends Activity
             return false;
         }
     };
-    private View mEqualButton;
     private Animator mCurrentAnimator;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_calculator);
-
-        mDisplayView = findViewById(R.id.display);
-        mFormulaEditText = (CalculatorEditText) findViewById(R.id.formula);
-        mResultEditText = (CalculatorEditText) findViewById(R.id.result);
-        mPadViewPager = (ViewPager) findViewById(R.id.pad_pager);
+        mFormulaEditText = findViewById(R.id.formula);
+        mResultEditText = findViewById(R.id.result);
+        mPadViewPager = findViewById(R.id.pad_pager);
         mDeleteButton = findViewById(R.id.del);
         mClearButton = findViewById(R.id.clr);
-
-        mEqualButton = findViewById(R.id.pad_numeric).findViewById(R.id.eq);
-        if (mEqualButton == null || mEqualButton.getVisibility() != View.VISIBLE) {
-            mEqualButton = findViewById(R.id.pad_operator).findViewById(R.id.eq);
-        }
-
+        
         mTokenizer = new CalculatorExpressionTokenizer(this);
         mEvaluator = new CalculatorExpressionEvaluator(mTokenizer);
 
@@ -295,60 +282,6 @@ public class Calculator extends Activity
         if (formulaLength > 0) {
             formulaText.delete(formulaLength - 1, formulaLength);
         }
-    }
-
-    private void reveal(View sourceView, int colorRes, AnimatorListener listener) {
-        final ViewGroupOverlay groupOverlay =
-                (ViewGroupOverlay) getWindow().getDecorView().getOverlay();
-
-        final Rect displayRect = new Rect();
-        mDisplayView.getGlobalVisibleRect(displayRect);
-
-        // Make reveal cover the display and status bar.
-        final View revealView = new View(this);
-        revealView.setBottom(displayRect.bottom);
-        revealView.setLeft(displayRect.left);
-        revealView.setRight(displayRect.right);
-        revealView.setBackgroundColor(getResources().getColor(colorRes));
-        groupOverlay.add(revealView);
-
-        final int[] clearLocation = new int[2];
-        sourceView.getLocationInWindow(clearLocation);
-        clearLocation[0] += sourceView.getWidth() / 2;
-        clearLocation[1] += sourceView.getHeight() / 2;
-
-        final int revealCenterX = clearLocation[0] - revealView.getLeft();
-        final int revealCenterY = clearLocation[1] - revealView.getTop();
-
-        final double x1_2 = Math.pow(revealView.getLeft() - revealCenterX, 2);
-        final double x2_2 = Math.pow(revealView.getRight() - revealCenterX, 2);
-        final double y_2 = Math.pow(revealView.getTop() - revealCenterY, 2);
-        final float revealRadius = (float) Math.max(Math.sqrt(x1_2 + y_2), Math.sqrt(x2_2 + y_2));
-
-        final Animator revealAnimator =
-                ViewAnimationUtils.createCircularReveal(revealView,
-                        revealCenterX, revealCenterY, 0.0f, revealRadius);
-        revealAnimator.setDuration(
-                getResources().getInteger(android.R.integer.config_longAnimTime));
-
-        final Animator alphaAnimator = ObjectAnimator.ofFloat(revealView, View.ALPHA, 0.0f);
-        alphaAnimator.setDuration(
-                getResources().getInteger(android.R.integer.config_mediumAnimTime));
-        alphaAnimator.addListener(listener);
-
-        final AnimatorSet animatorSet = new AnimatorSet();
-        animatorSet.play(revealAnimator).before(alphaAnimator);
-        animatorSet.setInterpolator(new AccelerateDecelerateInterpolator());
-        animatorSet.addListener(new AnimatorListenerAdapter() {
-            @Override
-            public void onAnimationEnd(Animator animator) {
-                groupOverlay.remove(revealView);
-                mCurrentAnimator = null;
-            }
-        });
-
-        mCurrentAnimator = animatorSet;
-        animatorSet.start();
     }
 
     private void onClear() {

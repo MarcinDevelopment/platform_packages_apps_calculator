@@ -24,7 +24,7 @@ public class CalculatorExpressionBuilder extends SpannableStringBuilder {
     private final CalculatorExpressionTokenizer mTokenizer;
     private boolean mIsEdited;
 
-    public CalculatorExpressionBuilder(
+    CalculatorExpressionBuilder(
             CharSequence text, CalculatorExpressionTokenizer tokenizer, boolean isEdited) {
         super(text);
 

@@ -22,7 +22,7 @@ import org.javia.arity.Symbols;
 import org.javia.arity.SyntaxException;
 import org.javia.arity.Util;
 
-public class CalculatorExpressionEvaluator {
+class CalculatorExpressionEvaluator {
 
     /**
      * The maximum number of significant digits to display.
@@ -38,16 +38,16 @@ public class CalculatorExpressionEvaluator {
     private final Symbols mSymbols;
     private final CalculatorExpressionTokenizer mTokenizer;
 
-    public CalculatorExpressionEvaluator(CalculatorExpressionTokenizer tokenizer) {
+    CalculatorExpressionEvaluator(CalculatorExpressionTokenizer tokenizer) {
         mSymbols = new Symbols();
         mTokenizer = tokenizer;
     }
 
-    public void evaluate(CharSequence expr, EvaluateCallback callback) {
+    void evaluate(CharSequence expr, EvaluateCallback callback) {
         evaluate(expr.toString(), callback);
     }
 
-    public void evaluate(String expr, EvaluateCallback callback) {
+    private void evaluate(String expr, EvaluateCallback callback) {
         expr = mTokenizer.getNormalizedExpression(expr);
 
         // remove any trailing operators
@@ -82,6 +82,6 @@ public class CalculatorExpressionEvaluator {
     }
 
     public interface EvaluateCallback {
-        public void onEvaluate(String expr, String result, int errorResourceId);
+        void onEvaluate(String expr, String result, int errorResourceId);
     }
 }
